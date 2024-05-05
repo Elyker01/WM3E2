@@ -1,4 +1,4 @@
-from agents import TrivialVacuumEnvironment, Agent, RandomAgentProgram
+from agents import *
 import random
 
 
@@ -32,7 +32,7 @@ class vacuumEnvironment(TrivialVacuumEnvironment):
             if agent.location[0] < 1:
                 agent.location = (agent.location[0] + 1, agent.location[1]) # Add 1 to the x coordinates 
 
-
+    
         elif action == "Left":
             agent.performance -= 1
             if agent.location[0] > 0:
@@ -51,19 +51,14 @@ class vacuumEnvironment(TrivialVacuumEnvironment):
 
         cleanLocations = [agentLocation for agentLocation, dirtyCleanStatus in self.status.items() if str(dirtyCleanStatus) == "Clean"]
         for location in cleanLocations:
-            if random.random() <= 0.0000000001:
+            if random.random() <= 0.1:
                 self.status[location] = "Dirty"
-        
-    def default_location(self, thing):
-        """Agents start in one of the four locations at random."""
-        return random.choice([loc_A, loc_B, loc_C, loc_D])
     
-
 
 
 if __name__ == "__main__":
     env = vacuumEnvironment()
-    agent = Agent(program=RandomAgentProgram(["Up", "Right", "Left", "Down", "Suck"]))
+    agent = Agent(program=RationalAgentProgram())
     agent.location = random.choice([loc_A, loc_B, loc_C, loc_D])
     env.add_thing(agent)
     isClean = False
@@ -73,13 +68,16 @@ if __name__ == "__main__":
     print("The agent's starting location is", format(agent.location) , "\n")
 
 
-    while isClean == False:
+    while not isClean:
         env.step()
-
+        action = agent.program(env.percept(agent))
+        print("Agent performs action:", action)
         print("The state of the environment locations are:", format(env.status) , "\n")
         print("The agent is currently located at:", format(agent.location) , "\n")
 
-        isClean = True
+        if all(status == 'Clean' for status in env.status.values()):
+            isClean = True
+        
         for status in env.status: # If there are any dirty locations left after the agent has travelled to it, change the isClean status to false
             if env.status[status] == "Dirty":
                 isClean = False

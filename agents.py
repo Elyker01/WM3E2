@@ -180,6 +180,35 @@ def ModelBasedReflexAgentProgram(rules, update_state, model):
     program.state = program.action = None
     return program
 
+def RationalAgentProgram():
+    """Rational agent program for the stochastic vacuum environment."""
+    visited_locations = []
+
+    def program(percept):
+        location, status = percept
+
+        if status == "Dirty":
+            return "Suck"
+        else:
+            visited_locations.append(location)
+            unvisited_locations = [loc for loc in [loc_A, loc_B, loc_C, loc_D] if loc not in visited_locations]
+            if unvisited_locations:
+                next_location = unvisited_locations[0]
+                if next_location[0] > location[0]:
+                    return "Right"
+                elif next_location[0] < location[0]:
+                    return "Left"
+                elif next_location[1] > location[1]:
+                    return "Up"
+                elif next_location[1] < location[1]:
+                    return "Down"
+            else:
+                # If all locations are visited, move randomly
+                return random.choice(["Right", "Left", "Up", "Down", "NoOp"])
+
+    return program
+
+
 
 def rule_match(state, rules):
     """Find the first rule that matches state."""
@@ -191,8 +220,7 @@ def rule_match(state, rules):
 # ______________________________________________________________________________
 
 
-loc_A, loc_B = (0, 0), (1, 0)  # The two locations for the Vacuum world
-
+loc_A, loc_B, loc_C, loc_D = (0, 0), (1, 0), (0,1), (1,1)  # The four locations for the Vacuum world
 
 def RandomVacuumAgent():
     """Randomly choose one of the actions from the vacuum environment.
