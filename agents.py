@@ -182,7 +182,7 @@ def ModelBasedReflexAgentProgram(rules, update_state, model):
 
 def RationalAgentProgram():
     """Rational agent program for the stochastic vacuum environment."""
-    visited_locations = []
+    visitedLocations = []
 
     def program(percept):
         location, status = percept
@@ -190,17 +190,17 @@ def RationalAgentProgram():
         if status == "Dirty":
             return "Suck"
         else:
-            visited_locations.append(location)
-            unvisited_locations = [loc for loc in [loc_A, loc_B, loc_C, loc_D] if loc not in visited_locations]
-            if unvisited_locations:
-                next_location = unvisited_locations[0]
-                if next_location[0] > location[0]:
+            visitedLocations.append(location)
+            unvisitedLocations = [loc for loc in [loc_A, loc_B, loc_C, loc_D] if loc not in visitedLocations]
+            if unvisitedLocations:
+                nextLocation = unvisitedLocations[0]
+                if nextLocation[0] > location[0]:
                     return "Right"
-                elif next_location[0] < location[0]:
+                elif nextLocation[0] < location[0]:
                     return "Left"
-                elif next_location[1] > location[1]:
+                elif nextLocation[1] > location[1]:
                     return "Up"
-                elif next_location[1] < location[1]:
+                elif nextLocation[1] < location[1]:
                     return "Down"
             else:
                 # If all locations are visited, move randomly

@@ -70,7 +70,8 @@ if __name__ == "__main__":
 
     while not isClean:
         env.step()
-
+        action = agent.program(env.percept(agent))
+        print("Agent performs action:", action)
         print("The state of the environment locations are:", format(env.status) , "\n")
         print("The agent is currently located at:", format(agent.location) , "\n")
 
@@ -85,5 +86,8 @@ if __name__ == "__main__":
 
     print("The agent has now cleaned everything:", format(env.status) , "\n")
     print("The agent's final score is", agent.performance, "meaning it has taken", (agent.performance + (-agent.performance * 2)), "steps to clean the whole environment.", "\n")
+
+
+
 
 
