@@ -48,8 +48,8 @@ class SchellingWorld:
 
         root.mainloop()
 
-    def run(self, n_steps):
-        for _ in range(n_steps):
+    def run(self, nSteps):
+        for _ in range(nSteps):
             agent = random.choice(self.agents)
             agent.check_happiness()
             if not agent.happy:
@@ -68,4 +68,4 @@ world = SchellingWorld(width=10, height=10)
 world.populate(n_agents=90)
 
 # Run the simulation for 100 steps
-world.run(n_steps=100)
+world.run(nSteps=100)
