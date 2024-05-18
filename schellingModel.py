@@ -1,5 +1,5 @@
 import random
-from time import *
+import time
 import tkinter as tk
 from collections import defaultdict
 from agents import *
@@ -21,6 +21,7 @@ class SchellingModelAgent(Agent):
 
         similarNeighbors = 0
         emptyNeighbors = 0
+        minimumHappyFraction = 0.25
         
         # Iterate through the colours and locations and count the number of similar and empty neighbors
         for neighbor in percept:
@@ -41,7 +42,7 @@ class SchellingModelAgent(Agent):
             similarFraction = 0
         
         # If the fraction of similar neighbors is bigger than 0.25 then the agent action will be stay
-        if similarFraction > 0.25:
+        if similarFraction > minimumHappyFraction: 
             self.happy = True
             return 'stay'
         
@@ -108,8 +109,10 @@ class SchellingModelWorld(Environment):
         sleep(delay)
         self.draw()
 
-    def measureSegregation(self):
+    def measureSegregationAndSatisfaction(self):
         totalFraction = 0
+        satisfiedAgents = 0
+        minimumHappyFraction = 0.25
         for agent in self.agents:
             similarNeighbors = 0
             totalNeighbors = 0
@@ -135,13 +138,19 @@ class SchellingModelWorld(Environment):
                 fraction = similarNeighbors / totalNeighbors
             else:
                 fraction = 0
-
             totalFraction += fraction
-        return totalFraction / len(self.agents) #Return the mean fraction (in decimal form) of similar neighbours
+
+            if fraction >= minimumHappyFraction: #If the fraction of similar neighbours is greater than 0.25 then the agent is happy
+                satisfiedAgents += 1
+
+        segregationFraction = totalFraction / len(self.agents) #Calculate the fraction of similar neighbours for all agents
+        agentSatisfaction = satisfiedAgents / len(self.agents) #Calculate the fraction of satisfied agents
+        return agentSatisfaction, segregationFraction #Return the mean fraction (in decimal form) of similar neighbours
 
     def run(self, steps):
         segregationValues = [] # Array to store the segregation value for each agent at each step
-
+        agentSatisfaction = []
+ 
         #Check the 8 neighbours surrounding the agent
         xAxis = [-1, 0, 1]
         yAxis = [-1, 0, 1]
@@ -172,7 +181,7 @@ class SchellingModelWorld(Environment):
                     #If the number of neighbours is greater than 0, calculate the fraction of similar neighbours        
                     if totalNeighbors > 0:
                         fractionSimilar[newLocation] = similarNeighbors / totalNeighbors
-                    else:
+                    else:   
                         fractionSimilar[newLocation] = 0
 
                 newLocation = max(fractionSimilar, key=fractionSimilar.get) #Set the new location to the empty location with the highest fraction of similar neighbours
@@ -183,21 +192,23 @@ class SchellingModelWorld(Environment):
                 self.grid[agent.location[0]][agent.location[1]] = None 
                 self.grid[newLocation[0]][newLocation[1]] = agent
                 agent.move(newLocation)
-            self.update() #Draw the updated world
+            self.draw() #Draw the updated world
 
-            segregationValues.append(self.measureSegregation()) #Append the decimal segregation values for the current step to the segregation values array
-            self.root.title(f'Step {step+1}')  
+            agentSatisfaction.append(self.measureSegregationAndSatisfaction()[0]) #Append the decimal segregation values for the current step to the segregation values array
+            segregationValues.append(self.measureSegregationAndSatisfaction()[1]) #Append the decimal segregation values for the current step to the segregation values array
+            # segregationValues.append(self.measureSegregation()) #Append the decimal segregation values for the current step to the segregation values array
+            self.root.title(f'Step {step+1}, k={agent.k}, Grid size: {self.width}x{self.height}')  
             
         avgSegregation = sum(segregationValues) / len(segregationValues) #Divide the total of all the segregation values by the number of values(number of agents)
+        avgAgentSatisfaction = sum(agentSatisfaction) / len(agentSatisfaction)
         print(f"Degree of Segregation: {avgSegregation*100 + 0.5:.2f}%")
+        print(f"Agent Satisfaction: {avgAgentSatisfaction*100 + 0.5:.2f}%")
 
-# Create a new world
+
 world = SchellingModelWorld(10, 10)
 
-# Populate the world with 90 agents (since 10% of the 100 cells should be empty)
-world.populate(nAgents=90, k=10)
+world.populate(nAgents=90, k=10) #Populate the world with the agents and empty locations
 
-# Run the simulation
 world.run(400)
 
 world.root.mainloop()
