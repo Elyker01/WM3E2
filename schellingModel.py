@@ -194,9 +194,8 @@ class SchellingModelWorld(Environment):
                 agent.move(newLocation)
             self.draw() #Draw the updated world
 
-            agentSatisfaction.append(self.measureSegregationAndSatisfaction()[0]) #Append the decimal segregation values for the current step to the segregation values array
-            segregationValues.append(self.measureSegregationAndSatisfaction()[1]) #Append the decimal segregation values for the current step to the segregation values array
-            # segregationValues.append(self.measureSegregation()) #Append the decimal segregation values for the current step to the segregation values array
+            agentSatisfaction.append(self.measureSegregationAndSatisfaction()[0]) #Append the segregation values for the current step to the segregationValues array
+            segregationValues.append(self.measureSegregationAndSatisfaction()[1]) #Append the satisfaction values for the current step to the agentSatisfaction array
             self.root.title(f'Step {step+1}, k={agent.k}, Grid size: {self.width}x{self.height}')  
             
         avgSegregation = sum(segregationValues) / len(segregationValues) #Divide the total of all the segregation values by the number of values(number of agents)
